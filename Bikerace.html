@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pinchu Bike Race</title>
+<style>
+body{margin:0;background:#222;color:white;text-align:center;font-family:Arial;overflow:hidden}
+h1{margin:10px 0 5px;color:yellow}
+#score{font-size:22px;margin-bottom:5px}
+#road{width:300px;height:480px;background:#333;margin:auto;position:relative;overflow:hidden;border-left:5px solid white;border-right:5px solid white}
+#line{position:absolute;left:145px;top:0;width:10px;height:100%;background:repeating-linear-gradient(white 0 30px,transparent 30px 60px)}
+#bike{position:absolute;bottom:20px;left:125px;font-size:45px;transition:0.1s}
+.car{position:absolute;font-size:40px}
+button{padding:15px 25px;font-size:20px;margin:8px;border:none;border-radius:10px;background:yellow;font-weight:bold}
+#startBtn{background:#00ff00}
+</style>
+</head>
+<body>
+<h1>🏍️ PINCHU BIKE RACE 🏍️</h1>
+<div id="score">Score: 0 | Speed: 0</div>
+<div id="road">
+<div id="line"></div>
+<div id="bike">🏍️</div>
+</div>
+<br>
+<button onclick="moveLeft()">⬅️ LEFT</button>
+<button id="startBtn" onclick="startGame()">START GAME</button>
+<button onclick="moveRight()">RIGHT ➡️</button>
+<p>दूसरी गाड़ियों से बचो! जितनी देर बचोगे, उतना Score!</p>
+
+<script>
+let bikeX = 125;
+let score = 0;
+let playing = false;
+let gameInterval;
+
+function moveLeft(){
+  if(bikeX > 10){ bikeX -= 40; document.getElementById("bike").style.left = bikeX + "px"; }
+}
+function moveRight(){
+  if(bikeX < 230){ bikeX += 40; document.getElementById("bike").style.left = bikeX + "px"; }
+}
+
+function startGame(){
+  score = 0; bikeX = 125;
+  document.getElementById("bike").style.left = bikeX + "px";
+  document.querySelectorAll(".car").forEach(e=>e.remove());
+  playing = true;
+  document.getElementById("startBtn").innerText = "RESTART";
+  clearInterval(gameInterval);
+  gameInterval = setInterval(gameLoop, 50);
+  alert("Race शुरू! LEFT - RIGHT दबा के बचो!");
+}
+
+function gameLoop(){
+  if(!playing) return;
+  score++;
+  document.getElementById("score").innerText = "Score: " + score + " | Speed: " + Math.floor(score/100);
+  // नई गाड़ी बनाओ
+  if(Math.random() < 0.02){
+    let car = document.createElement("div");
+    car.className = "car";
+    car.innerText = ["🚗","🚙","🚚","🚕"][Math.floor(Math.random()*4)];
+    car.style.left = Math.floor(Math.random()*6)*45 + "px";
+    car.style.top = "-50px";
+    document.getElementById("road").appendChild(car);
+  }
+  // गाड़ियों को नीचे लाओ
+  document.querySelectorAll(".car").forEach(car=>{
+    let top = parseInt(car.style.top) + 5 + Math.floor(score/200);
+    car.style.top = top + "px";
+    // टक्कर चेक करो
+    let carX = parseInt(car.style.left);
+    if(top > 380 && top < 450 && Math.abs(carX - bikeX) < 35){
+      playing = false;
+      clearInterval(gameInterval);
+      alert("GAME OVER! 😭 Tera Score: " + score + "\nफिर से START दबा!");
+    }
+    if(top > 500) car.remove();
+  });
+}
+</script>
+</body>
+</html>
